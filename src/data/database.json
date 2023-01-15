@@ -1,0 +1,11 @@
+{
+  "enemies": [
+    {
+      "id": 1,
+      "name": "Undead",
+      "baseDmg": 50,
+      "hpMax": 1000,
+      "level": 1
+    }
+  ]
+}

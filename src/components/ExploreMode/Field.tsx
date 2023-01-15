@@ -4,56 +4,60 @@ import React, {
   useEffect,
   useRef,
   useState,
-} from 'react'
-import { levelData } from '../../data/level'
-import { getScrollPos, isInViewRange } from '../../utils'
-import Cell from '../Cell'
+} from 'react';
+import { levelData } from '../../data/level';
+import { getScrollPos, isInViewRange } from '../../utils';
+import Cell from '../Cell';
 
 export default function Field(props: fieldProps) {
-  const { gameMode, setGameMode } = props
+  const { gameMode, setGameMode } = props;
   const [fogOfWar, setFogOfWar] = useState<boolean[][]>(
     Array(levelData.length).fill(Array(levelData[0].length).fill(false))
-  )
+  );
 
-  const [heroPos, setHeroPos] = useState<positionCoord>({ x: 1, y: 1 })
-  const fieldWindow = useRef<HTMLDivElement>(null)
+  const [heroPos, setHeroPos] = useState<positionCoord>({ x: 1, y: 1 });
+  const fieldWindow = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setFogOfWar((field) => updateFogOfWar(field, heroPos))
-    getScrollPos(heroPos.x, heroPos.y, fieldWindow)
-  }, [heroPos])
+    setFogOfWar((field) => updateFogOfWar(field, heroPos));
+    getScrollPos(heroPos.x, heroPos.y, fieldWindow);
+  }, [heroPos]);
 
   function updateFogOfWar(field: boolean[][], heroPos: positionCoord) {
     const newField = field.map((row, i) =>
       row.map((cell, j) => {
-        if (cell) return true
+        if (cell) return true;
         if (isInViewRange(i, j, heroPos.x, heroPos.y)) {
-          return true
+          return true;
         }
-        return false
+        return false;
       })
-    )
-    return newField
+    );
+    return newField;
   }
 
   function handleMoveClick(i: number, j: number, cellType: number) {
     switch (cellType) {
       case 1:
         if (isInViewRange(i, j, heroPos.x, heroPos.y) && levelData[i][j] !== 0)
-          moveToPos(i, j)
-        break
+          moveToPos(i, j);
+        break;
       case 2:
-        setGameMode('battle')
-        break
+        moveToPos(i, j);
+        setGameMode('battle');
+        break;
+      case 9:
+        setGameMode('win');
+        break;
     }
   }
   function moveToPos(i: number, j: number) {
-    setHeroPos({ x: i, y: j })
+    setHeroPos({ x: i, y: j });
   }
   return (
     <div
       ref={fieldWindow}
-      className="flex max-w-[800px] max-h-[800px] border overflow-hidden "
+      className="flex max-h-[800px] max-w-[800px] overflow-hidden border "
     >
       <div className="relative  flex flex-col ">
         {levelData.map((row, i) => (
@@ -75,10 +79,10 @@ export default function Field(props: fieldProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 type fieldProps = {
-  gameMode: string
-  setGameMode: React.Dispatch<SetStateAction<any>>
-}
+  gameMode: string;
+  setGameMode: React.Dispatch<SetStateAction<any>>;
+};
