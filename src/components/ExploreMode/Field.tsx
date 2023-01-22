@@ -1,29 +1,30 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { levelData } from '../../data/level';
+import React, { SetStateAction, useEffect, useRef, useState } from 'react';
+import { GameModes } from '../../App';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { fieldSlice } from '../../store/reducers/fieldSlice';
+import { gameSlice } from '../../store/reducers/gameSlice';
+import { heroSlice } from '../../store/reducers/heroSlice';
 import { getScrollPos, isInViewRange } from '../../utils';
 import Cell from '../Cell';
 
-export default function Field(props: fieldProps) {
-  const { gameMode, setGameMode } = props;
-  const [fogOfWar, setFogOfWar] = useState<boolean[][]>(
-    Array(levelData.length).fill(Array(levelData[0].length).fill(false))
-  );
+export default function Field() {
+  const { gameMode } = useAppSelector((state) => state.game);
+  const { changeGameMode } = gameSlice.actions;
+  const { field, fogOfWar } = useAppSelector((state) => state.field);
 
-  const [heroPos, setHeroPos] = useState<positionCoord>({ x: 1, y: 1 });
+  const { heroPos } = useAppSelector((state) => state.hero);
+  const { clearFieldCell, updateFogField } = fieldSlice.actions;
+  const dispatch = useAppDispatch();
+  const { changePosition, gainGold, getDamage, restoreHp } = heroSlice.actions;
+
   const fieldWindow = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setFogOfWar((field) => updateFogOfWar(field, heroPos));
+    dispatch(updateFogField(updateFogOfWar(fogOfWar, heroPos)));
     getScrollPos(heroPos.x, heroPos.y, fieldWindow);
   }, [heroPos]);
 
-  function updateFogOfWar(field: boolean[][], heroPos: positionCoord) {
+  function updateFogOfWar(field: boolean[][], heroPos: PositionCoord) {
     const newField = field.map((row, i) =>
       row.map((cell, j) => {
         if (cell) return true;
@@ -36,23 +37,40 @@ export default function Field(props: fieldProps) {
     return newField;
   }
 
-  function handleMoveClick(i: number, j: number, cellType: number) {
+  function handleMoveClick(i: number, j: number, cellType: CellTypes) {
     switch (cellType) {
-      case 1:
-        if (isInViewRange(i, j, heroPos.x, heroPos.y) && levelData[i][j] !== 0)
+      case CellTypes.Pass:
+        if (isInViewRange(i, j, heroPos.x, heroPos.y) && field[i][j] !== 0)
           moveToPos(i, j);
         break;
-      case 2:
+      case CellTypes.Enemy:
         moveToPos(i, j);
-        setGameMode('battle');
+        dispatch(changeGameMode(GameModes.Battle));
         break;
-      case 9:
-        setGameMode('win');
+      case CellTypes.Trap:
+        moveToPos(i, j);
+        dispatch(getDamage(100));
+        dispatch(clearFieldCell({ x: i, y: j }));
+
+        break;
+      case CellTypes.Potion:
+        moveToPos(i, j);
+        dispatch(restoreHp(100));
+        dispatch(clearFieldCell({ x: i, y: j }));
+
+        break;
+      case CellTypes.Gold:
+        moveToPos(i, j);
+        dispatch(gainGold(100));
+        dispatch(clearFieldCell({ x: i, y: j }));
+        break;
+      case CellTypes.Win:
+        dispatch(changeGameMode(GameModes.Win));
         break;
     }
   }
   function moveToPos(i: number, j: number) {
-    setHeroPos({ x: i, y: j });
+    dispatch(changePosition({ x: i, y: j }));
   }
   return (
     <div
@@ -60,7 +78,7 @@ export default function Field(props: fieldProps) {
       className="flex max-h-[800px] max-w-[800px] overflow-hidden border "
     >
       <div className="relative  flex flex-col ">
-        {levelData.map((row, i) => (
+        {field.map((row, i) => (
           <div key={i} className="row flex">
             {row.map((cell, j) => (
               <>
@@ -82,7 +100,13 @@ export default function Field(props: fieldProps) {
   );
 }
 
-type fieldProps = {
-  gameMode: string;
-  setGameMode: React.Dispatch<SetStateAction<any>>;
-};
+enum CellTypes {
+  Wall,
+  Pass,
+  Enemy,
+  Question,
+  Gold,
+  Potion,
+  Trap,
+  Win = 9,
+}

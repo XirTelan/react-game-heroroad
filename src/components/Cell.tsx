@@ -1,44 +1,46 @@
-import React from 'react'
-import { IconContext } from 'react-icons'
-import { GiBrickWall } from 'react-icons/gi'
-import { BsQuestionSquareFill } from 'react-icons/bs'
-import { TbSwords } from 'react-icons/tb'
+import React from 'react';
+import { IconContext } from 'react-icons';
 
-import { isInViewRange } from '../utils'
+import { GiBrickWall } from 'react-icons/gi';
+import { BsQuestionSquareFill } from 'react-icons/bs';
+import { TbSwords } from 'react-icons/tb';
+
+import { isInViewRange } from '../utils';
 
 export default function Cell(props: cellProps) {
-  const { i, j, cellType, isVisible, heroPos, handleMoveClick } = props
+  const { i, j, cellType, isVisible, heroPos, handleMoveClick } = props;
 
   function getCell(cell: number) {
     switch (cell) {
       case 0:
-        return <GiBrickWall />
+        return <GiBrickWall />;
       case 2:
-        return <TbSwords />
+        return <TbSwords />;
       default:
-        return <div></div>
+        return <div></div>;
     }
   }
 
   const isReacheable = () => {
     return (
       isInViewRange(i, j, heroPos.x, heroPos.y) &&
-      (i === heroPos.x || j == heroPos.y)
-    )
-  }
+      (i === heroPos.x || j == heroPos.y) &&
+      !(i === heroPos.x && j == heroPos.y)
+    );
+  };
 
   return (
     <div
       key={j}
-      className={` relative flex w-20 h-20  ${
+      className={` relative flex h-20 w-20  ${
         cellType === 0
           ? ''
           : isReacheable()
-          ? 'cursor-pointer bg-slate-700'
+          ? 'cursor-pointer bg-white bg-opacity-20 hover:bg-opacity-10'
           : ''
       }`}
       onClick={() => {
-        if (isReacheable()) handleMoveClick(i, j, cellType)
+        if (isReacheable()) handleMoveClick(i, j, cellType);
       }}
     >
       {isVisible ? (
@@ -59,14 +61,14 @@ export default function Cell(props: cellProps) {
         </IconContext.Provider>
       )}
     </div>
-  )
+  );
 }
 
 type cellProps = {
-  i: number
-  j: number
-  cellType: number
-  heroPos: positionCoord
-  isVisible: boolean
-  handleMoveClick: (i: number, j: number, cellType: number) => void
-}
+  i: number;
+  j: number;
+  cellType: number;
+  heroPos: PositionCoord;
+  isVisible: boolean;
+  handleMoveClick: (i: number, j: number, cellType: number) => void;
+};

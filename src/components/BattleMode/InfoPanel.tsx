@@ -1,15 +1,14 @@
-import React from "react";
-import Bar from "./Bar";
+import React from 'react';
+import Bar from './Bar';
 
-export default function InfoPanel(data: character) {
+export default function InfoPanel(data: Character) {
   return (
     <div className="ml-2 mt-2 rounded bg-slate-200 p-4">
       <div className="flex justify-between">
         <div className="">{data.name}</div>
         <div className="">{data.level}</div>
       </div>
-      <Bar title={"HP"} maxValue={data.hpMax} currentValue={data.hpCurrent} />
-      <Bar title={"MP"} maxValue={635} currentValue={615} />
+      <Bar maxValue={data.hpMax} currentValue={data.hpCurrent} />
     </div>
   );
 }
