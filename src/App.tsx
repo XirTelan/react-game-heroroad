@@ -9,6 +9,7 @@ import GameEnd from './components/GameEnd';
 import { useAppDispatch, useAppSelector } from './hooks/redux';
 import { heroSlice } from './store/reducers/heroSlice';
 import { gameSlice } from './store/reducers/gameSlice';
+import { ModalView } from './components/ModalView';
 
 function App() {
   const { gameMode } = useAppSelector((state) => state.game);
@@ -43,12 +44,12 @@ function App() {
             </div>
             <Field />
             {gameMode === GameModes.Battle && (
-              <div className="absolute inset-0 flex h-full w-full flex-col items-center bg-black bg-opacity-60 ">
-                <div className="absolute top-10 text-4xl font-bold text-white ">
-                  BATTLE
-                </div>
-                <Battle />
-              </div>
+              <>
+           
+                <ModalView>
+                  <Battle />
+                </ModalView>
+              </>
             )}
             <div className="text-white ">
               <MiniMap />

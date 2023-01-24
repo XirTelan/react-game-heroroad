@@ -5,7 +5,8 @@ import { fieldSlice } from '../../store/reducers/fieldSlice';
 import { gameSlice } from '../../store/reducers/gameSlice';
 import { heroSlice } from '../../store/reducers/heroSlice';
 import { getScrollPos, isInViewRange } from '../../utils';
-import Cell from '../Cell';
+import { Header } from '../Header';
+import Cell from './Cell';
 
 export default function Field() {
   const { gameMode } = useAppSelector((state) => state.game);
@@ -73,34 +74,37 @@ export default function Field() {
     dispatch(changePosition({ x: i, y: j }));
   }
   return (
-    <div
-      ref={fieldWindow}
-      className="flex max-h-[800px] max-w-[800px] overflow-hidden border "
-    >
-      <div className="relative  flex flex-col ">
-        {field.map((row, i) => (
-          <div key={i} className="row flex">
-            {row.map((cell, j) => (
-              <>
-                <Cell
-                  key={j}
-                  i={i}
-                  j={j}
-                  cellType={cell}
-                  heroPos={heroPos}
-                  isVisible={fogOfWar[i][j]}
-                  handleMoveClick={handleMoveClick}
-                />
-              </>
-            ))}
-          </div>
-        ))}
+    <div className="flex flex-col rounded  bg-white bg-opacity-5 p-4 ">
+      <Header title="FIELD" />
+      <div
+        ref={fieldWindow}
+        className="flex max-h-[800px] max-w-[800px]  overflow-hidden rounded border bg-black  "
+      >
+        <div className="relative flex   flex-col  ">
+          {field.map((row, i) => (
+            <div key={i} className="row flex">
+              {row.map((cell, j) => (
+                <>
+                  <Cell
+                    key={j}
+                    i={i}
+                    j={j}
+                    cellType={cell}
+                    heroPos={heroPos}
+                    isVisible={fogOfWar[i][j]}
+                    handleMoveClick={handleMoveClick}
+                  />
+                </>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-enum CellTypes {
+export enum CellTypes {
   Wall,
   Pass,
   Enemy,

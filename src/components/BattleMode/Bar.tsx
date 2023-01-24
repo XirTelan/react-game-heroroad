@@ -11,7 +11,7 @@ export default function Bar(props: barProps) {
       <div className="relative h-5 w-40 ">
         <div className=" h-5 w-full bg-slate-800"></div>
         <div
-          className={`absolute top-0 left-0 h-5 max-w-full bg-rose-400`}
+          className={`absolute top-0 left-0 h-5 max-w-full bg-rose-400 transition-all duration-500 ease-in`}
           style={{
             width: `${(currentValue / maxValue) * 100}%`,
           }}

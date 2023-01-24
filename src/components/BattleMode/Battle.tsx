@@ -64,9 +64,12 @@ export default function Battle() {
   console.log(enemy);
   return (
     <>
-      <div className="container m-auto flex max-h-[800px] max-w-[800px] flex-col   items-center justify-center  overflow-hidden ">
+      <div className="container z-10 m-auto flex max-h-[800px] max-w-[800px] flex-col    overflow-hidden ">
+        <div className="absolute top-10 right-0 left-0 flex w-full justify-center text-4xl font-bold text-white ">
+          <span>BATTLE</span>
+        </div>
         <div
-          className=" h-full w-full"
+          className=" h-full w-full rounded"
           style={{
             backgroundImage: '',
             background: 'url("https://via.placeholder.com/900x300")',

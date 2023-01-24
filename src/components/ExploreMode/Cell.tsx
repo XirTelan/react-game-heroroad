@@ -5,17 +5,24 @@ import { GiBrickWall } from 'react-icons/gi';
 import { BsQuestionSquareFill } from 'react-icons/bs';
 import { TbSwords } from 'react-icons/tb';
 
-import { isInViewRange } from '../utils';
+import { isInViewRange } from '../../utils';
+import { CellTypes } from './Field';
 
 export default function Cell(props: cellProps) {
   const { i, j, cellType, isVisible, heroPos, handleMoveClick } = props;
 
-  function getCell(cell: number) {
+  function getCell(cell: CellTypes) {
     switch (cell) {
-      case 0:
+      case CellTypes.Wall:
         return <GiBrickWall />;
-      case 2:
+      case CellTypes.Enemy:
         return <TbSwords />;
+      case CellTypes.Trap:
+        return <div>Trap</div>;
+      case CellTypes.Gold:
+        return <div>Gold</div>;
+      case CellTypes.Win:
+        return <div>Win</div>;
       default:
         return <div></div>;
     }
