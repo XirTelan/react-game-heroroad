@@ -7,6 +7,7 @@ import { heroSlice } from '../../store/reducers/heroSlice';
 import { getScrollPos, isInViewRange } from '../../utils';
 import { Header } from '../Header';
 import Cell from './Cell';
+import logo2 from '../../img/TX Tileset Grass.png';
 
 export default function Field() {
   const { gameMode } = useAppSelector((state) => state.game);
@@ -50,7 +51,7 @@ export default function Field() {
         break;
       case CellTypes.Trap:
         moveToPos(i, j);
-        dispatch(getDamage(100));
+        dispatch(getDamage(90));
         dispatch(clearFieldCell({ x: i, y: j }));
 
         break;
@@ -74,13 +75,13 @@ export default function Field() {
     dispatch(changePosition({ x: i, y: j }));
   }
   return (
-    <div className="flex flex-col rounded  bg-white bg-opacity-5 p-4 ">
+    <div className="flex flex-col rounded  bg-white bg-opacity-5 p-2 ">
       <Header title="FIELD" />
       <div
         ref={fieldWindow}
-        className="flex max-h-[800px] max-w-[800px]  overflow-hidden rounded border bg-black  "
+        className=" flex max-h-[800px] max-w-[800px]  overflow-hidden rounded border   "
       >
-        <div className="relative flex   flex-col  ">
+        <div className="relative  flex  flex-col  ">
           {field.map((row, i) => (
             <div key={i} className="row flex">
               {row.map((cell, j) => (

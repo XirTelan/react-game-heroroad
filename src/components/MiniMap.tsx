@@ -18,14 +18,14 @@ export default function MiniMap() {
   };
 
   return (
-    <div className="ml-4 bg-white bg-opacity-5 p-4">
+    <div className="ml-4 bg-white bg-opacity-5 p-2 rounded">
       <Header title="MINIMAP" />
       {field.map((row, i) => (
         <div key={i} className="flex ">
           {row.map((cell, j) => (
             <div
               key={j}
-              className={`h-1 w-1 xl:h-4 xl:w-4  ${
+              className={`h-1 w-1 xl:h-3 xl:w-3  ${
                 isVisibleCell(i, j)
                   ? isHeroPosCell(i, j)
                     ? 'animate-pulse bg-white'

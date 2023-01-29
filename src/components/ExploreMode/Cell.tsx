@@ -1,20 +1,16 @@
 import React from 'react';
 import { IconContext } from 'react-icons';
 
-import { GiBrickWall } from 'react-icons/gi';
 import { BsQuestionSquareFill } from 'react-icons/bs';
 import { TbSwords } from 'react-icons/tb';
 
 import { isInViewRange } from '../../utils';
 import { CellTypes } from './Field';
-
+import { handleCellVisual } from './handleCellVisual';
 export default function Cell(props: cellProps) {
   const { i, j, cellType, isVisible, heroPos, handleMoveClick } = props;
-
-  function getCell(cell: CellTypes) {
+  function getCellData(cell: CellTypes) {
     switch (cell) {
-      case CellTypes.Wall:
-        return <GiBrickWall />;
       case CellTypes.Enemy:
         return <TbSwords />;
       case CellTypes.Trap:
@@ -39,10 +35,8 @@ export default function Cell(props: cellProps) {
   return (
     <div
       key={j}
-      className={` relative flex h-20 w-20  ${
-        cellType === 0
-          ? ''
-          : isReacheable()
+      className={` relative flex h-16 w-16  ${
+        isReacheable() && cellType != 0
           ? 'cursor-pointer bg-white bg-opacity-20 hover:bg-opacity-10'
           : ''
       }`}
@@ -51,20 +45,29 @@ export default function Cell(props: cellProps) {
       }}
     >
       {isVisible ? (
-        heroPos.x == i && heroPos.y == j ? (
-          <span className="text-white">Hero</span>
-        ) : (
+        <>
           <div className="absolute inset-0 ">
-            <IconContext.Provider value={{ color: 'blue', size: '80' }}>
-              <div>{getCell(cellType)}</div>
+            <img src={handleCellVisual(i, j)} alt="" />
+          </div>
+          {heroPos.x == i && heroPos.y == j ? (
+            <span className=" z-[1] flex-1 text-white">Hero</span>
+          ) : (
+            <IconContext.Provider value={{ color: 'blue', size: '64' }}>
+              <div
+                className={` z-[1] flex-1 ${
+                  isReacheable() && cellType != 0
+                    ? 'cursor-pointer bg-white bg-opacity-20 hover:bg-opacity-10'
+                    : ''
+                } `}
+              >
+                {getCellData(cellType)}
+              </div>
             </IconContext.Provider>
-          </div>
-        )
+          )}
+        </>
       ) : (
-        <IconContext.Provider value={{ color: 'blue', size: '70' }}>
-          <div className="p-1">
-            <BsQuestionSquareFill />
-          </div>
+        <IconContext.Provider value={{ color: 'blue', size: '64' }}>
+          <BsQuestionSquareFill />
         </IconContext.Provider>
       )}
     </div>

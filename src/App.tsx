@@ -35,7 +35,7 @@ function App() {
   return (
     <>
       <div className="App  ">
-        <div className="flex h-screen items-center  justify-center ">
+        <div className="flex min-h-screen items-center  justify-center ">
           {gameMode == GameModes.Win && <GameEnd isWin={true} />}
           {gameMode == GameModes.GameOver && <GameEnd isWin={false} />}
           <div className="flex ">
@@ -45,7 +45,6 @@ function App() {
             <Field />
             {gameMode === GameModes.Battle && (
               <>
-           
                 <ModalView>
                   <Battle />
                 </ModalView>

@@ -15,6 +15,8 @@ export default function Battle() {
   const [enemy, setEnemy] = useState(() => createEnemy(data.enemies[0]));
   const { clearFieldCell } = fieldSlice.actions;
   const { changeGameMode } = gameSlice.actions;
+  const { getDamage } = heroSlice.actions;
+
   const { gainExp } = heroSlice.actions;
   const dispatch = useAppDispatch();
 
@@ -22,6 +24,12 @@ export default function Battle() {
     if (enemy.hpCurrent <= 0) getBattleResults('win');
     if (hero.hpCurrent <= 0) getBattleResults('lose');
   }, [enemy, hero.hpCurrent]);
+
+  useEffect(() => {
+    if (isPlayerTurn) return;
+    attack(enemy, hero);
+    setIsPlayerTurn(true);
+  }, [isPlayerTurn]);
 
   function createEnemy(data: any) {
     return {
@@ -52,13 +60,19 @@ export default function Battle() {
         attack(hero, enemy);
         setIsPlayerTurn(false);
         break;
+      case 'defend':
+        setIsPlayerTurn(false);
+        break;
     }
   }
 
   function attack(src: Character, dst: Character) {
-    const newHp = (dst.hpCurrent -= src.baseDmg);
+    let currentHp = dst.hpCurrent;
+    const newHp = (currentHp -= src.baseDmg);
     console.log(dst);
-    setEnemy({ ...dst, hpCurrent: newHp });
+    isPlayerTurn
+      ? dispatch(getDamage(src.baseDmg))
+      : setEnemy({ ...dst, hpCurrent: newHp });
   }
 
   console.log(enemy);
@@ -81,13 +95,17 @@ export default function Battle() {
               <div>{isPlayerTurn ? 'Player Turn' : 'Enemy turn'}</div>
               <InfoPanel {...enemy} />
             </div>
-            <div className="h-[300px]"></div>
+            <div className="h-[300px]">
+              <div className=" h-1 w-20  overflow-hidden">
+                <div className="slice active   h-1 w-full bg-white"></div>
+              </div>
+            </div>
             <div className="mx-3  mb-3 flex flex-col  rounded bg-black bg-opacity-90">
               <div className="flex bg-white bg-opacity-5">
                 <div className="flex flex-col p-3 text-white">
                   <button
                     className="rounded p-2 hover:bg-white hover:bg-opacity-10"
-                    onClick={() => attack(hero, enemy)}
+                    onClick={() => makeAction('attack')}
                   >
                     Attack
                   </button>
