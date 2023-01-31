@@ -3,8 +3,8 @@
     {
       "id": 1,
       "name": "Undead",
-      "baseDmg": 50,
-      "hpMax": 1000,
+      "baseDmg": 5,
+      "hpMax": 100,
       "level": 1
     }
   ]

@@ -4,10 +4,10 @@ const initialState: Hero = {
   level: 1,
   expCurrent: 0,
   expReq: 50,
-  name: '',
-  baseDmg: 50,
+  name: 'Hero',
+  baseDmg: 10,
   hpMax: 100,
-  hpCurrent: 40,
+  hpCurrent: 100,
   gold: 0,
   heroPos: { x: 1, y: 0 },
 };

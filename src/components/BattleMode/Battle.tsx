@@ -7,6 +7,10 @@ import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fieldSlice } from '../../store/reducers/fieldSlice';
 import { heroSlice } from '../../store/reducers/heroSlice';
 import { gameSlice } from '../../store/reducers/gameSlice';
+import { wait } from '../../utils';
+import { useAbility } from '../../hooks/useAbility';
+import { ActionButton } from '../UI/ActionButton';
+import { GiHealthNormal, GiShield } from 'react-icons/gi';
 
 export default function Battle() {
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
@@ -16,16 +20,17 @@ export default function Battle() {
   const { clearFieldCell } = fieldSlice.actions;
   const { changeGameMode } = gameSlice.actions;
   const { getDamage } = heroSlice.actions;
-
+  const defendAbility = useAbility(5, isPlayerTurn);
+  const healAbility = useAbility(3, isPlayerTurn);
   const { gainExp } = heroSlice.actions;
   const dispatch = useAppDispatch();
-
   useEffect(() => {
     if (enemy.hpCurrent <= 0) getBattleResults('win');
     if (hero.hpCurrent <= 0) getBattleResults('lose');
   }, [enemy, hero.hpCurrent]);
 
   useEffect(() => {
+    console.log('next Turn:', isPlayerTurn ? 'player' : 'enemy');
     if (isPlayerTurn) return;
     attack(enemy, hero);
     setIsPlayerTurn(true);
@@ -53,26 +58,34 @@ export default function Battle() {
     }
   }
 
-  function makeAction(action: string) {
+  async function makeAction(action: string) {
     if (!isPlayerTurn) return;
     switch (action) {
       case 'attack':
         attack(hero, enemy);
+        await wait(1000);
         setIsPlayerTurn(false);
         break;
       case 'defend':
+        defendAbility.activate();
+        setIsPlayerTurn(false);
+        break;
+      case 'heal':
+        healAbility.activate();
+        dispatch(heroSlice.actions.restoreHp(20));
         setIsPlayerTurn(false);
         break;
     }
   }
 
   function attack(src: Character, dst: Character) {
+    console.log('triggered', src.name, dst.name);
     let currentHp = dst.hpCurrent;
     const newHp = (currentHp -= src.baseDmg);
-    console.log(dst);
+    console.log(isPlayerTurn);
     isPlayerTurn
-      ? dispatch(getDamage(src.baseDmg))
-      : setEnemy({ ...dst, hpCurrent: newHp });
+      ? setEnemy({ ...dst, hpCurrent: newHp })
+      : dispatch(getDamage(src.baseDmg));
   }
 
   console.log(enemy);
@@ -89,32 +102,41 @@ export default function Battle() {
             background: 'url("https://via.placeholder.com/900x300")',
           }}
         >
-          <div className="flex h-full flex-col justify-between ">
+          <div className=" flex h-full flex-col justify-between ">
             <div className="top-0 flex w-full justify-between ">
               <InfoPanel {...hero} />
               <div>{isPlayerTurn ? 'Player Turn' : 'Enemy turn'}</div>
               <InfoPanel {...enemy} />
             </div>
-            <div className="h-[300px]">
-              <div className=" h-1 w-20  overflow-hidden">
+            <div className="relative h-[300px]">
+              <div className=" absolute top-1/2 right-1/4 h-2  w-60 rotate-45  overflow-hidden bg-red-700">
                 <div className="slice active   h-1 w-full bg-white"></div>
               </div>
             </div>
             <div className="mx-3  mb-3 flex flex-col  rounded bg-black bg-opacity-90">
               <div className="flex bg-white bg-opacity-5">
-                <div className="flex flex-col p-3 text-white">
+                <div className="flex min-w-[10rem] flex-col p-3 text-white">
                   <button
                     className="rounded p-2 hover:bg-white hover:bg-opacity-10"
                     onClick={() => makeAction('attack')}
                   >
                     Attack
                   </button>
-                  <button
-                    className="rounded p-2 hover:bg-white hover:bg-opacity-10"
-                    onClick={() => attack(hero, enemy)}
-                  >
-                    Defend
-                  </button>
+                  <ActionButton
+                    title="Heal"
+                    isAvailable={healAbility.isAvailable()}
+                    cdRemain={healAbility.cdCurrent}
+                    onClick={() => makeAction('heal')}
+                    icon={<GiHealthNormal />}
+                  />
+
+                  <ActionButton
+                    title="Defend"
+                    isAvailable={defendAbility.isAvailable()}
+                    cdRemain={defendAbility.cdCurrent}
+                    onClick={() => makeAction('defend')}
+                    icon={<GiShield />}
+                  />
                 </div>
                 <div className="m-3 flex grow gap-1 rounded">
                   <div className="relative grow bg-white  bg-opacity-10 p-1">
@@ -125,9 +147,8 @@ export default function Battle() {
                   </div>
                   <div className="relative grow bg-white  bg-opacity-10 p-1">
                     <div className=" absolute -top-3 right-1/2 rounded bg-black p-1  text-white">
-                      Items
+                      Journal
                     </div>
-                    <div>Fire</div>
                   </div>
                 </div>
               </div>

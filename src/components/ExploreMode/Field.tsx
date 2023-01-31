@@ -5,7 +5,7 @@ import { fieldSlice } from '../../store/reducers/fieldSlice';
 import { gameSlice } from '../../store/reducers/gameSlice';
 import { heroSlice } from '../../store/reducers/heroSlice';
 import { getScrollPos, isInViewRange } from '../../utils';
-import { Header } from '../Header';
+import { Header } from '../UI/Header';
 import Cell from './Cell';
 import logo2 from '../../img/TX Tileset Grass.png';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppSelector } from '../hooks/redux';
-import { Header } from './Header';
+import { Header } from './UI/Header';
 
 export default function MiniMap() {
   const { field, fogOfWar } = useAppSelector((state) => state.field);
@@ -18,7 +18,7 @@ export default function MiniMap() {
   };
 
   return (
-    <div className="ml-4 bg-white bg-opacity-5 p-2 rounded">
+    <div className="ml-4 rounded bg-white bg-opacity-5 p-2">
       <Header title="MINIMAP" />
       {field.map((row, i) => (
         <div key={i} className="flex ">

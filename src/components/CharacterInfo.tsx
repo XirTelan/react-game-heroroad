@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAppSelector } from '../hooks/redux';
 import Bar from './BattleMode/Bar';
-import { Header } from './Header';
+import { Header } from './UI/Header';
 
 export default function CharacterInfo() {
   const hero = useAppSelector((state) => state.hero);
