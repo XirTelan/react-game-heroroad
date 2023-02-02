@@ -11,6 +11,7 @@ import { wait } from '../../utils';
 import { useAbility } from '../../hooks/useAbility';
 import { ActionButton } from '../UI/ActionButton';
 import { GiHealthNormal, GiShield } from 'react-icons/gi';
+import { useJournal } from '../../hooks/useJournal';
 
 export default function Battle() {
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
@@ -22,6 +23,7 @@ export default function Battle() {
   const { getDamage } = heroSlice.actions;
   const defendAbility = useAbility(5, isPlayerTurn);
   const healAbility = useAbility(3, isPlayerTurn);
+  const journal = useJournal();
   const { gainExp } = heroSlice.actions;
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -41,6 +43,7 @@ export default function Battle() {
       id: data.id,
       name: data.name,
       baseDmg: data.baseDmg,
+      defense: data.defense,
       hpCurrent: data.hpMax,
       hpMax: data.hpMax,
       level: data.level,
@@ -64,6 +67,7 @@ export default function Battle() {
       case 'attack':
         attack(hero, enemy);
         await wait(1000);
+        journal.addMessage('Hero attack undead');
         setIsPlayerTurn(false);
         break;
       case 'defend':
@@ -145,10 +149,13 @@ export default function Battle() {
                     </div>
                     <div>Fire</div>
                   </div>
-                  <div className="relative grow bg-white  bg-opacity-10 p-1">
+                  <div className="relative max-h-[120px] grow overflow-scroll bg-white  bg-opacity-10 p-1">
                     <div className=" absolute -top-3 right-1/2 rounded bg-black p-1  text-white">
                       Journal
                     </div>
+                    {journal.messages.map((msg, indx) => (
+                      <div key={indx}>{msg}</div>
+                    ))}
                   </div>
                 </div>
               </div>

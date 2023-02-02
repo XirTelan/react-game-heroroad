@@ -4,6 +4,7 @@
 
 body {
   background-color: #121212;
+  user-select: none;
 }
 
 .slice {

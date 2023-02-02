@@ -3,22 +3,18 @@ type PositionCoord = {
   y: number;
 };
 
-type Character = {
+interface Character {
   name: string;
   level: number;
   hpMax: number;
   hpCurrent: number;
   baseDmg: number;
-};
+  defense: number;
+}
 
-type Hero = {
-  level: number;
+interface Hero extends Character {
+  avalablePoints: number;
   expCurrent: number;
   expReq: number;
-  name: string;
-  baseDmg: number;
-  hpMax: number;
-  hpCurrent: number;
-  gold: number;
   heroPos: PositionCoord;
-};
+}

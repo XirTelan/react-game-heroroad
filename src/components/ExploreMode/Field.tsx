@@ -17,7 +17,7 @@ export default function Field() {
   const { heroPos } = useAppSelector((state) => state.hero);
   const { clearFieldCell, updateFogField } = fieldSlice.actions;
   const dispatch = useAppDispatch();
-  const { changePosition, gainGold, getDamage, restoreHp } = heroSlice.actions;
+  const { changePosition, getDamage, restoreHp } = heroSlice.actions;
 
   const fieldWindow = useRef<HTMLDivElement>(null);
 
@@ -40,6 +40,8 @@ export default function Field() {
   }
 
   function handleMoveClick(i: number, j: number, cellType: CellTypes) {
+    if (gameMode !== GameModes.Explore) return;
+
     switch (cellType) {
       case CellTypes.Pass:
         if (isInViewRange(i, j, heroPos.x, heroPos.y) && field[i][j] !== 0)
@@ -60,11 +62,6 @@ export default function Field() {
         dispatch(restoreHp(100));
         dispatch(clearFieldCell({ x: i, y: j }));
 
-        break;
-      case CellTypes.Gold:
-        moveToPos(i, j);
-        dispatch(gainGold(100));
-        dispatch(clearFieldCell({ x: i, y: j }));
         break;
       case CellTypes.Win:
         dispatch(changeGameMode(GameModes.Win));
@@ -110,7 +107,6 @@ export enum CellTypes {
   Pass,
   Enemy,
   Question,
-  Gold,
   Potion,
   Trap,
   Win = 9,

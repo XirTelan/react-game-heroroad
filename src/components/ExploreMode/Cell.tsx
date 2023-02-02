@@ -3,7 +3,7 @@ import { IconContext } from 'react-icons';
 
 import { BsQuestionSquareFill } from 'react-icons/bs';
 import { TbSwords } from 'react-icons/tb';
-
+import { IoFootstepsSharp } from 'react-icons/io5';
 import { isInViewRange } from '../../utils';
 import { CellTypes } from './Field';
 import { handleCellVisual } from './handleCellVisual';
@@ -11,12 +11,13 @@ export default function Cell(props: cellProps) {
   const { i, j, cellType, isVisible, heroPos, handleMoveClick } = props;
   function getCellData(cell: CellTypes) {
     switch (cell) {
+      case CellTypes.Pass:
+        if (isReacheable()) return <IoFootstepsSharp />;
+        break;
       case CellTypes.Enemy:
         return <TbSwords />;
       case CellTypes.Trap:
         return <div>Trap</div>;
-      case CellTypes.Gold:
-        return <div>Gold</div>;
       case CellTypes.Win:
         return <div>Win</div>;
       default:
@@ -44,7 +45,7 @@ export default function Cell(props: cellProps) {
         if (isReacheable()) handleMoveClick(i, j, cellType);
       }}
     >
-      {isVisible ? (
+      {isVisible && (
         <>
           <div className="absolute inset-0 ">
             <img src={handleCellVisual(i, j)} alt="" />
@@ -52,7 +53,7 @@ export default function Cell(props: cellProps) {
           {heroPos.x == i && heroPos.y == j ? (
             <span className=" z-[1] flex-1 text-white">Hero</span>
           ) : (
-            <IconContext.Provider value={{ color: 'blue', size: '64' }}>
+            <IconContext.Provider value={{ color: 'white', size: '64' }}>
               <div
                 className={` z-[1] flex-1 ${
                   isReacheable() && cellType != 0
@@ -65,10 +66,6 @@ export default function Cell(props: cellProps) {
             </IconContext.Provider>
           )}
         </>
-      ) : (
-        <IconContext.Provider value={{ color: 'blue', size: '64' }}>
-          <BsQuestionSquareFill />
-        </IconContext.Provider>
       )}
     </div>
   );
