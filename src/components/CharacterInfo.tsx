@@ -17,7 +17,7 @@ export default function CharacterInfo() {
   }, [hero.avalablePoints]);
 
   return (
-    <div className=" mr-3 w-60 rounded bg-white bg-opacity-5 p-4">
+    <div className=" mr-3 w-60 rounded bg-white bg-opacity-5 p-2">
       <Header title="STATS" />
       <div className="flex justify-between">
         <div>
@@ -26,7 +26,7 @@ export default function CharacterInfo() {
         {hero.avalablePoints > 0 && (
           <div>
             <button onClick={toggle}>
-              <div className="flex items-center rounded bg-white bg-opacity-20 px-2">
+              <div className="flex animate-bounce items-center rounded bg-white bg-opacity-20 px-2">
                 <div>LvlUp - {hero.avalablePoints}</div>
                 <AiFillStar />
               </div>

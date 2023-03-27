@@ -1,29 +1,37 @@
-import React, { SetStateAction, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Bar from './Bar';
 import InfoPanel from './InfoPanel';
 import data from '../../data/database.json';
 import { GameModes } from '../../App';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { fieldSlice } from '../../store/reducers/fieldSlice';
-import { heroSlice } from '../../store/reducers/heroSlice';
+import { heroSlice, StatsType } from '../../store/reducers/heroSlice';
 import { gameSlice } from '../../store/reducers/gameSlice';
 import { wait } from '../../utils';
 import { useAbility } from '../../hooks/useAbility';
 import { ActionButton } from '../UI/ActionButton';
-import { GiHealthNormal, GiShield } from 'react-icons/gi';
+import {
+  GiHealthNormal,
+  GiShield,
+  GiSandsOfTime,
+  GiSwordWound,
+} from 'react-icons/gi';
 import { useJournal } from '../../hooks/useJournal';
 
 export default function Battle() {
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const hero = useAppSelector((state) => state.hero);
-
+  const attackAnimationRef = useRef<HTMLInputElement>(null);
   const [enemy, setEnemy] = useState(() => createEnemy(data.enemies[0]));
   const { clearFieldCell } = fieldSlice.actions;
   const { changeGameMode } = gameSlice.actions;
   const { getDamage } = heroSlice.actions;
+
   const defendAbility = useAbility(5, isPlayerTurn);
   const healAbility = useAbility(3, isPlayerTurn);
   const journal = useJournal();
+  const journalMessEndRef = useRef<HTMLInputElement>(null);
+
   const { gainExp } = heroSlice.actions;
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -34,9 +42,12 @@ export default function Battle() {
   useEffect(() => {
     console.log('next Turn:', isPlayerTurn ? 'player' : 'enemy');
     if (isPlayerTurn) return;
-    attack(enemy, hero);
-    setIsPlayerTurn(true);
+    enemyDesision();
   }, [isPlayerTurn]);
+
+  useEffect(() => {
+    journalMessEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [journal.messages]);
 
   function createEnemy(data: any) {
     return {
@@ -60,24 +71,35 @@ export default function Battle() {
         break;
     }
   }
+  async function attackAnimation() {
+    attackAnimationRef.current?.classList.toggle('active');
+  }
+  async function enemyDesision() {
+    console.log('Enemy move');
+    makeAction('attack', enemy);
+    await wait(1000);
+    setIsPlayerTurn(true);
+  }
 
-  async function makeAction(action: string) {
-    if (!isPlayerTurn) return;
+  async function makeAction(action: string, person: Character) {
+    if (person == hero && !isPlayerTurn) return;
+    if (person == hero) setIsPlayerTurn(false);
     switch (action) {
       case 'attack':
-        attack(hero, enemy);
+        if (person == hero) {
+          attack(hero, enemy);
+          attackAnimation();
+        } else {
+          attack(enemy, hero);
+        }
         await wait(1000);
-        journal.addMessage('Hero attack undead');
-        setIsPlayerTurn(false);
         break;
       case 'defend':
         defendAbility.activate();
-        setIsPlayerTurn(false);
         break;
       case 'heal':
         healAbility.activate();
         dispatch(heroSlice.actions.restoreHp(20));
-        setIsPlayerTurn(false);
         break;
     }
   }
@@ -87,6 +109,7 @@ export default function Battle() {
     let currentHp = dst.hpCurrent;
     const newHp = (currentHp -= src.baseDmg);
     console.log(isPlayerTurn);
+    journal.addMessage(`${src.name} attack  ${dst.name} Deal:${src.baseDmg}`);
     isPlayerTurn
       ? setEnemy({ ...dst, hpCurrent: newHp })
       : dispatch(getDamage(src.baseDmg));
@@ -113,49 +136,56 @@ export default function Battle() {
               <InfoPanel {...enemy} />
             </div>
             <div className="relative h-[300px]">
-              <div className=" absolute top-1/2 right-1/4 h-2  w-60 rotate-45  overflow-hidden bg-red-700">
-                <div className="slice active   h-1 w-full bg-white"></div>
+              <div className=" absolute top-1/2 right-1/4 h-2  w-60 rotate-45  overflow-hidden">
+                <div
+                  ref={attackAnimationRef}
+                  className={`slice    h-1 w-full bg-white`}
+                ></div>
               </div>
             </div>
             <div className="mx-3  mb-3 flex flex-col  rounded bg-black bg-opacity-90">
               <div className="flex bg-white bg-opacity-5">
-                <div className="flex min-w-[10rem] flex-col p-3 text-white">
-                  <button
-                    className="rounded p-2 hover:bg-white hover:bg-opacity-10"
-                    onClick={() => makeAction('attack')}
-                  >
-                    Attack
-                  </button>
+                <div className="relative flex min-w-[10rem] flex-col p-3 text-white">
+                  <ActionButton
+                    title="Attack"
+                    isAvailable={true}
+                    cdRemain={0}
+                    onClick={() => makeAction('attack', hero)}
+                    icon={<GiSwordWound />}
+                  />
                   <ActionButton
                     title="Heal"
                     isAvailable={healAbility.isAvailable()}
                     cdRemain={healAbility.cdCurrent}
-                    onClick={() => makeAction('heal')}
+                    onClick={() => makeAction('heal', hero)}
                     icon={<GiHealthNormal />}
                   />
-
                   <ActionButton
                     title="Defend"
                     isAvailable={defendAbility.isAvailable()}
                     cdRemain={defendAbility.cdCurrent}
-                    onClick={() => makeAction('defend')}
+                    onClick={() => makeAction('defend', hero)}
                     icon={<GiShield />}
                   />
+                  {!isPlayerTurn && (
+                    <div className="absolute inset-0 flex content-center justify-center rounded bg-black bg-opacity-70">
+                      <p className=" self-center ">
+                        <GiSandsOfTime />
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div className="m-3 flex grow gap-1 rounded">
-                  <div className="relative grow bg-white  bg-opacity-10 p-1">
-                    <div className=" absolute -top-3 right-1/2 rounded bg-black p-1  text-white">
-                      Skills
-                    </div>
-                    <div>Fire</div>
-                  </div>
-                  <div className="relative max-h-[120px] grow overflow-scroll bg-white  bg-opacity-10 p-1">
-                    <div className=" absolute -top-3 right-1/2 rounded bg-black p-1  text-white">
+                  <div className="relative  grow  rounded border border-white bg-white  bg-opacity-10 p-1">
+                    <div className=" absolute -top-3 right-1/2 rounded    border border-white bg-black  p-2  text-white">
                       Journal
                     </div>
-                    {journal.messages.map((msg, indx) => (
-                      <div key={indx}>{msg}</div>
-                    ))}
+                    <div className=" max-h-[120px] overflow-auto p-1 text-slate-50 ">
+                      {journal.messages.map((msg, indx) => (
+                        <div key={indx}>{msg}</div>
+                      ))}
+                      <div ref={journalMessEndRef} />
+                    </div>
                   </div>
                 </div>
               </div>
